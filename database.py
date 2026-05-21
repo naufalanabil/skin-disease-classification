@@ -2,21 +2,21 @@ from supabase import create_client
 import streamlit as st
 
 # =====================================================
-# CONNECT SUPABASE (DENGAN SISTEM CADANGAN AMAN)
+# CONNECT SUPABASE (KUNCI UTAMA VALID & DIUTAMAKAN)
 # =====================================================
 
-try:
-    # Jalur utama: Membaca dari secrets cloud/lokal (.streamlit/secrets.toml)
-    url = st.secrets["SUPABASE_URL"].strip().rstrip("/")
-    key = st.secrets["SUPABASE_KEY"].strip()
-except Exception:
-    # Jalur cadangan: Jika secrets di Streamlit Cloud mendadak macet / tidak terbaca
-    url = "https://dzwfjzsvpmaxjmwptvau.supabase.co"
-    # Menggunakan Anon Public Key terbaru yang kamu kirim
-    key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6d2ZqenN2cG1heGptd3B0dmF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4MTAyOTAsImV4cCI6MjA5NDM4NjI5MH0.-dPJaHCUOYeAJvI74z8Fjxnw1HuYmMR23fqzn3weO4s"
+# Kita langsung pasang URL dan Anon Key terbaru yang valid di sini agar pasti terbaca
+url_pasti = "https://dzwfjzsvpmaxjmwptvau.supabase.co"
+key_pasti = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6d2ZqenN2cG1heGptd3B0dmF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4MTAyOTAsImV4cCI6MjA5NDM4NjI5MH0.-dPJaHCUOYeAJvI74z8Fjxnw1HuYmMR23fqzn3weO4s"
 
-# Inisialisasi client Supabase menggunakan url dan key yang aktif
-supabase = create_client(url, key)
+try:
+    # Mencoba menggunakan kunci pasti yang sudah terbukti valid
+    supabase = create_client(url_pasti, key_pasti)
+except Exception:
+    # Jalur cadangan terakhir jika ada kendala sistem lokal
+    url_backup = st.secrets["SUPABASE_URL"].strip().rstrip("/")
+    key_backup = st.secrets["SUPABASE_KEY"].strip()
+    supabase = create_client(url_backup, key_backup)
 
 # =====================================================
 # SAVE PREDICTION
@@ -46,7 +46,6 @@ def get_history():
     try:
         # Mengambil data dari tabel 'predictions' menggunakan pengurutan 'desc=True' yang valid
         response = supabase.table("predictions").select("*").order("id", desc=True).execute()
-        
         return response.data
         
     except Exception as e:
