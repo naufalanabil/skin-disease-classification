@@ -1,5 +1,5 @@
 streamlit
-tensorflow==2.15.0
+tensorflow>=2.15.0
 protobuf==3.20.3
 numpy<2.0.0
 pandas
@@ -7,4 +7,3 @@ matplotlib
 pillow
 h5py
 supabase
-ml-dtypes==0.3.1
