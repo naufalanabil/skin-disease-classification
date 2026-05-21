@@ -2,12 +2,20 @@ from supabase import create_client
 import streamlit as st
 
 # =====================================================
-# CONNECT SUPABASE
+# CONNECT SUPABASE (DENGAN SISTEM CADANGAN AMAN)
 # =====================================================
 
-url = st.secrets["SUPABASE_URL"].strip().rstrip("/")
-key = st.secrets["SUPABASE_KEY"].strip()
+try:
+    # Jalur utama: Membaca dari secrets cloud/lokal (.streamlit/secrets.toml)
+    url = st.secrets["SUPABASE_URL"].strip().rstrip("/")
+    key = st.secrets["SUPABASE_KEY"].strip()
+except Exception:
+    # Jalur cadangan: Jika secrets di Streamlit Cloud mendadak macet / tidak terbaca
+    url = "https://dzwfjzsvpmaxjmwptvau.supabase.co"
+    # ⚠️ GANTI teks di bawah ini dengan anon public key asli dari dashboard Supabase kamu
+    key = "MASUKKAN_ANON_PUBLIC_KEY_PROJECT_SUPABASE_KAMU_DI_SINI"
 
+# Inisialisasi client Supabase menggunakan url dan key yang aktif
 supabase = create_client(url, key)
 
 # =====================================================
@@ -22,7 +30,7 @@ def save_prediction(image_name, prediction, confidence):
             "confidence": confidence
         }
         
-        # JIKA NAMA TABEL DI BROWSER BERBEDA, GANTI TEKS "predictions" DI BAWAH INI
+        # Menyimpan data hasil prediksi ke tabel 'predictions'
         response = supabase.table("predictions").insert(data).execute()
         return response
         
@@ -36,12 +44,17 @@ def save_prediction(image_name, prediction, confidence):
 
 def get_history():
     try:
-        # Kita pakai query paling dasar dan polosan tanpa .order() dulu untuk test jalur
-        # JIKA NAMA TABEL DI BROWSER BERBEDA, GANTI TEKS "predictions" DI BAWAH INI
-        response = supabase.table("predictions").select("*").execute()
+        # Mengambil data dari tabel 'predictions' menggunakan pengurutan 'desc=True' yang valid
+        response = supabase.table("predictions").select("*").order("id", desc=True).execute()
         
         return response.data
         
     except Exception as e:
-        print(f"Error saat mengambil data: {e}")
-        raise e
+        # Jika query .order() di atas memicu error baru (misal karena kolom id tidak ada),
+        # maka otomatis pakai query polosan sebagai backup agar aplikasi tidak crash
+        try:
+            response = supabase.table("predictions").select("*").execute()
+            return response.data
+        except Exception as final_err:
+            print(f"Error saat mengambil data: {final_err}")
+            raise final_err
