@@ -12,8 +12,8 @@ try:
 except Exception:
     # Jalur cadangan: Jika secrets di Streamlit Cloud mendadak macet / tidak terbaca
     url = "https://dzwfjzsvpmaxjmwptvau.supabase.co"
-    # ⚠️ GANTI teks di bawah ini dengan anon public key asli dari dashboard Supabase kamu
-    key = "MASUKKAN_ANON_PUBLIC_KEY_PROJECT_SUPABASE_KAMU_DI_SINI"
+    # Menggunakan Anon Public Key terbaru yang kamu kirim
+    key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6d2ZqenN2cG1heGptd3B0dmF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4MTAyOTAsImV4cCI6MjA5NDM4NjI5MH0.-dPJaHCUOYeAJvI74z8Fjxnw1HuYmMR23fqzn3weO4s"
 
 # Inisialisasi client Supabase menggunakan url dan key yang aktif
 supabase = create_client(url, key)
