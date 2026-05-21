@@ -7,3 +7,4 @@ matplotlib
 pillow
 h5py
 supabase
+scikit-learn
